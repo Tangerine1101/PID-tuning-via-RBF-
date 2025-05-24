@@ -4,6 +4,8 @@
 #include <errno.h>
 #include <wiringPi.h>
 
+#include "print-lcd.c"
+
 #define DIR_1_PIN   23
 #define DIR_2_PIN   25
 #define PWM_PIN     21
@@ -63,7 +65,21 @@ void motor_stop(void) {
     motor_set_direction_and_speed(LOW, LOW, 0);
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
+
+    if (i2c_bus_init(I2C_BUS_PATH) != 0) {
+        return 1;
+    }
+
+    lcd_init();
+    lcd_clear();
+    lcd_set_cursor(0, 3);
+    lcd_clear();
+
+    if (argc >= 2){
+        lcd_print_string(argv[1]);
+    }
+
     setup_gpio();
 
     int pwm_drive_value = 700;

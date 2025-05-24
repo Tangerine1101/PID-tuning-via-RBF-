@@ -9,7 +9,7 @@
 
 // --- General Definitions ---
 #define LCD_I2C_ADDRESS         0x27
-const char *I2C_BUS_PATH      = "/dev/i2c-1";
+const char *I2C_BUS_PATH      = "/dev/i2c-2";
 
 // --- LCD Definitions ---
 #define LCD_RS_PIN              (1 << 0)
@@ -111,18 +111,7 @@ void lcd_clear(void) {
 //---------------------------------------------------------------------------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
 
-    if (i2c_bus_init(I2C_BUS_PATH) != 0) {
-        return 1;
-    }
-
-    lcd_init();
-    lcd_clear();
-    lcd_set_cursor(0, 3);
-    lcd_clear();
-
-    if (argc >= 2){
-        lcd_print_string(argv[1]);
-    }
+    
 
     return 0;
 }
