@@ -4,11 +4,11 @@
 #include <errno.h>
 #include <wiringPi.h>
 
-#define DIR_1_PIN   2
-#define DIR_2_PIN   16
-#define PWM_PIN     1
-#define ENC_A_PIN   0
-#define ENC_B_PIN   15
+#define DIR_1_PIN   23
+#define DIR_2_PIN   25
+#define PWM_PIN     22
+#define ENC_A_PIN   20
+#define ENC_B_PIN   19
 
 volatile long encoder_pulse_count = 0;
 unsigned long last_speed_check_time = 0;
