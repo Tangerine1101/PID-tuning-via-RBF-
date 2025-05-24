@@ -6,9 +6,9 @@
 
 #define DIR_1_PIN   23
 #define DIR_2_PIN   25
-#define PWM_PIN     22
-#define ENC_A_PIN   20
-#define ENC_B_PIN   19
+#define PWM_PIN     21
+#define ENC_A_PIN   5
+#define ENC_B_PIN   3
 
 volatile long encoder_pulse_count = 0;
 unsigned long last_speed_check_time = 0;
@@ -29,6 +29,7 @@ void setup_gpio(void) {
     pinMode(PWM_PIN, PWM_OUTPUT);
 
     pinMode(ENC_A_PIN, INPUT);
+    pinMode(ENC_B_PIN, INPUT);
     pullUpDnControl(ENC_A_PIN, PUD_UP);
 
     if (wiringPiISR(ENC_A_PIN, INT_EDGE_RISING, &encoder_isr) < 0) {
