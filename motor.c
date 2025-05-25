@@ -10,6 +10,10 @@
 #define ENC_A_PIN   5
 #define ENC_B_PIN   3
 
+#define FORWARD 1
+#define STOP    0
+#define REVERSE -1
+
 volatile long encoder_pulse_count = 0;
 unsigned long last_speed_check_time = 0;
 long last_encoder_pulse_count_for_speed = 0;
@@ -45,22 +49,21 @@ void setup_gpio(void) {
     last_encoder_pulse_count_for_speed = encoder_pulse_count;
 }
 
-void motor_set_direction_and_speed(int dir1_val, int dir2_val, int speed_pwm) {
-    digitalWrite(DIR_1_PIN, dir1_val);
-    digitalWrite(DIR_2_PIN, dir2_val);
-    pwmWrite(PWM_PIN, speed_pwm);
-}
-
-void motor_forward(int speed_pwm) {
-    motor_set_direction_and_speed(HIGH, LOW, speed_pwm);
-}
-
-void motor_backward(int speed_pwm) {
-    motor_set_direction_and_speed(LOW, HIGH, speed_pwm);
-}
-
-void motor_stop(void) {
-    motor_set_direction_and_speed(LOW, LOW, 0);
+void motor(int speed){
+    if (speed == 0){
+    digitalWrite(DIR_1_PIN, 0);
+    digitalWrite(DIR_2_PIN, 0);
+    }    
+    else if (speed >= 1){
+    digitalWrite(DIR_1_PIN, 0);
+    digitalWrite(DIR_2_PIN, 1);
+    pwmWrite(PWM_PIN, speed);    
+    }
+    else if (speed <= -1){
+    digitalWrite(DIR_1_PIN, 1);
+    digitalWrite(DIR_2_PIN, 0);
+    pwmWrite(PWM_PIN, -speed);    
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -79,33 +82,24 @@ int main(int argc, char *argv[]) {
     }
 
     setup_gpio();
+    int pwm_val =0;
+    int val =10;
+    while(TRUE){
+        motor(pwm_val);
+        pwm_val += val;
+        if (pwm_val ==255){
+            val = -val;
+        }
+        else if (pwm_val == -255) {
+            val = -val;
+        }
+        delay(200);
+        char buffer[3]; 
+        int print = snprintf(buffer, sizeof(buffer), "%d", pwm_val);
+        lcd_print_string(buffer);
+    }
 
-    int pwm_drive_value = 700;
-
-    printf("Dong co chay tien...\n");
-    motor_forward(pwm_drive_value);
-    delay(3000);
-
-    printf("Dong co dung.\n");
-    motor_stop();
-    delay(1000);
-    printf("So xung encoder hien tai: %ld\n", encoder_pulse_count);
-
-
-    long pulses_before_reverse = encoder_pulse_count;
-    printf("Dong co chay lui...\n");
-    motor_backward(pwm_drive_value);
-    delay(3000);
-
-    printf("Dong co dung.\n");
-    motor_stop();
-    delay(1000);
-    printf("So xung encoder hien tai: %ld\n", encoder_pulse_count);
-    printf("So xung trong luc chay lui: %ld\n", encoder_pulse_count - pulses_before_reverse);
-
-
-    printf("\nTheo doi toc do (Ctrl+C de thoat):\n");
-    while (1) {
+    /*while (1) {
         unsigned long current_time = millis();
         long current_pulses = encoder_pulse_count;
 
@@ -123,7 +117,7 @@ int main(int argc, char *argv[]) {
             last_speed_check_time = current_time;
         }
         delay(50);
-    }
+    } */
 
     return 0;
 }
