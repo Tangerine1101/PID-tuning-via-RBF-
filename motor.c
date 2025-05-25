@@ -95,6 +95,7 @@ int main(int argc, char *argv[]) {
         char lcd_str[16]; 
         motor(pwm_val);
         sprintf(lcd_str, "%03d", pwm_val);
+        lcd_set_cursor(0,0);
         lcd_print_string(lcd_str);
         delay(200);
     }
