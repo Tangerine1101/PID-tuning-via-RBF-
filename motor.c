@@ -7,12 +7,9 @@
 #define DIR_1_PIN   23
 #define DIR_2_PIN   25
 #define PWM_PIN     21
-#define ENC_A_PIN   5
-#define ENC_B_PIN   3
-
-#define FORWARD 1
-#define STOP    0
-#define REVERSE -1
+#define ENC_A_PIN   24
+#define ENC_B_PIN   26
+#define RESET_PIN   27
 
 volatile long encoder_pulse_count = 0;
 unsigned long last_speed_check_time = 0;
@@ -62,7 +59,7 @@ void motor(int speed){
     else if (speed <= -1){
     digitalWrite(DIR_1_PIN, 1);
     digitalWrite(DIR_2_PIN, 0);
-    pwmWrite(PWM_PIN, -speed);    
+    pwmWrite(PWM_PIN, speed);    
     }
 }
 
@@ -84,19 +81,22 @@ int main(int argc, char *argv[]) {
     setup_gpio();
     int pwm_val =0;
     int val =10;
-    while(TRUE){
-        motor(pwm_val);
+    while(digitalRead(RESET_PIN) ==0){
         pwm_val += val;
+        int u = pwm_val;
+        if (pwm_val >= 0);
+        else {u = -pwm_val;}
         if (pwm_val ==255){
             val = -val;
         }
         else if (pwm_val == -255) {
             val = -val;
         }
+        char lcd_str[16]; 
+        motor(pwm_val);
+        sprintf(lcd_str, "%03d", pwm_val);
+        lcd_print_string(lcd_str);
         delay(200);
-        char buffer[3]; 
-        int print = snprintf(buffer, sizeof(buffer), "%d", pwm_val);
-        lcd_print_string(buffer);
     }
 
     /*while (1) {
