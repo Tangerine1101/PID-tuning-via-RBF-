@@ -6,9 +6,9 @@
 
 #define DIR_1_PIN   23
 #define DIR_2_PIN   25
-#define PWM_PIN     9
-#define ENC_A_PIN   24
-#define ENC_B_PIN   26
+#define PWM_PIN     21
+#define ENC_A_PIN   5
+#define ENC_B_PIN   7
 #define RESET_PIN   27
 
 volatile long encoder_pulse_count = 0;
