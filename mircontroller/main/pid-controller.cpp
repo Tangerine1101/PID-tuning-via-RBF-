@@ -21,7 +21,14 @@ void pidCompute(pid* controller, double error){
   double I = controller->Ki * controller->sumE;
   double D = controller->Kd * controller->dE;
   controller->val = P + I + D;
-  constrain(controller->val, )
+  
+  if (controller->val > 1000){
+    controller->val = 1000;
+  }
+  if (controller->val < 0){
+    controller->val = 0;
+  }
+
   controller->sumE += error;
   controller->dE = (error- controller->lastE )/controller->dt;
   controller->lastE = error;

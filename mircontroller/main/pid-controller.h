@@ -8,7 +8,7 @@ struct pid {
   double lastE;
   double dE;
   double sumE;
-  long dt;
+  double dt;
   double val;
 };
 
