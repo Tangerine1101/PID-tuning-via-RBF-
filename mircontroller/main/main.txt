@@ -1,0 +1,85 @@
+#define EN 6
+#define M1 7
+#define M2 8
+#define enA 2
+#define enB 3
+
+//motor
+#define FORWARD 1
+#define STOP 0
+#define REVERSE -1
+
+//pid variables
+double Kp = 1, Ki = 1, Kd =0;
+double setpoint = 100;                           //in RPM
+double dt = 10;                                  //sample time, in milliseconds
+double e = 0, last_e = 0, de = 0, sum_e = 0;
+
+//encoder related
+volatile long enCount = 0;
+double t0 = 0, t1 = 0;
+
+void setup(){
+  Serial.begin(9600);
+  pinMode(EN, 1);
+  pinMode(M1, 1);
+  pinMode(M2, 1);
+  pinMode(enA, 0);
+  pinMode(enB, 0);
+  attachInterrupt(digitalPinToInterrupt(enA), encoderISRA, RISING);
+}
+void loop() {
+  //
+  double u=0;
+  double spd = rpm(t1, 0.01);
+  t1 = enCount - t0;
+
+  pidCompute(&u, Kp, Ki, Kd, spd, &de, &last_e, &sum_e);
+  motor(M1, M2, EN, FORWARD, u);
+  double t = millis() / 1000;
+  printCSV(t,spd);
+  
+  t0 = enCount;
+  delay(dt);
+}
+
+void motor(int pinA, int pinB, int pinEN, int dir, int power) {
+  int PWM = map(power, 0, 100, 40, 255);
+  if (dir == 0) {
+    digitalWrite(pinA, 0);
+    digitalWrite(pinA, 0);
+    analogWrite(pinEN, 0);
+  } else if (dir > 0) {
+    digitalWrite(pinA, 1);
+    digitalWrite(pinA, 0);
+    analogWrite(pinEN, PWM);
+  } else {
+    digitalWrite(pinA, 1);
+    digitalWrite(pinA, 0);
+    analogWrite(pinEN, PWM);
+  }
+}
+
+void printCSV(double x, double y) {
+  Serial.print(x, 2);
+  Serial.print(",");
+  Serial.println(y, 2);
+}
+
+void pidCompute(double* val, double Kp, double Ki, double Kd, double E, double* dE, double* lastE, double* sumE){
+  //convert rpm into 
+  *val = Kp * E + Ki * (*sumE) + Kd * (*dE);
+  constrain(*val, 0, 100);
+  *sumE += E;
+  *dE = (E - (*lastE)) / dt;
+  *lastE = E;
+}
+
+double rpm(long pulse, double sec){
+  double u = (pulse*60)/(11*9.6*sec);
+  return u;
+}
+
+void encoderISRA(){
+  enCount++;
+}
