@@ -1,3 +1,5 @@
+#include"pid-controller.h"
+
 #define EN 6
 #define M1 7
 #define M2 8
@@ -9,20 +11,27 @@
 #define STOP 0
 #define REVERSE -1
 
-//pid variables
-double Kp = 0.05, Ki = 0.001, Kd =0;
-double setpoint = 150;                           //in RPM
-double dt = 100;                                  //sample time, in milliseconds
-double e = 0, last_e = 0, de = 0, sum_e = 0;
-double buffer[3] = {0, 0, 0};
-int count =0;
-
-int a= digitalRead(enA), b =digitalRead(enB);
 //encoder related
 volatile long enCount = 0;
 double t0 = 0, t1 = 0;
 
+double filter[3]= {0, 0, 0};
+int fillerCount;
+void filterX(double* val){
+  filter[fillerCount] = *val;
+  if(filter[2] ==0 || filter[1] ==0 || filter[0] ==0){
+    *val =0;
+  }
+  else {
+    *val = (filter[0] + filter[1] + filter[2])/3;
+  }
+  fillerCount++;
+}
+
+pid controller;
 void setup(){
+  pidinit(&controller, 1, 0.001, 0, 200, 0.01);
+
   Serial.begin(9600);
   pinMode(EN, 1);
   pinMode(M1, 1);
@@ -36,16 +45,14 @@ void loop() {
   //
   double u=0;
   t1 = enCount - t0;
-  double spd = rpm(t1, (float)dt/1000);
-  Serial.print(count);
-  double error = setpoint - spd;
-  pidCompute(&u, Kp, Ki, Kd, error, &de, &last_e, &sum_e);
-  motor(M1, M2, EN, FORWARD, 100);
+  double spd = rpm(t1, (float)controller.dt/1000);
+  pidCompute(&controller,controller.setpoint - spd);
+  motor(M1, M2, EN, FORWARD, controller.val);
   double t = (float)millis() /1000;
   printCSV(t,spd);
   
   t0 = enCount;
-  delay(dt);
+  delay(controller.dt);
 }
 
 void motor(int pinA, int pinB, int pinEN, int dir, int power) {
@@ -71,20 +78,10 @@ void printCSV(float x, float y) {
   Serial.println((float)y, 2);
 }
 
-void pidCompute(double* val, double Kp, double Ki, double Kd, double E, double* dE, double* lastE, double* sumE){
-  //convert rpm into 
-  *val = Kp * E + Ki * (*sumE) + Kd * (*dE);
-  constrain(*val, 0, 100);
-  *sumE += E;
-  *dE = (E - (*lastE)) / dt;
-  *lastE = E;
-}
-
 double rpm(long pulse, double sec){
   double u = ((float)pulse*60)/(4*11*9.6*sec);
   return u;
 }
-
 
 void encoderISRA(){
   enCount++;
