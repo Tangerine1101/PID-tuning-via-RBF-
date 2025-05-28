@@ -1,5 +1,4 @@
-#include"pid-controller.h"
-#include"system_performance.h"
+#include"dataHandle.h"
 
 #define EN 6
 #define M1 7
@@ -135,52 +134,4 @@ void encoderISRA(){
 }
 void encoderISRB(){
   enCount++;
-}
-//Serial interact
-String readSerialLine() {
-  String line = "";
-  unsigned long startTime = millis(); // Bắt đầu bộ đếm thời gian chờ
-  const unsigned long timeoutDuration = 30000; // Thời gian chờ tối đa (ví dụ: 5 giây)
-
-  while (true) {
-    if (Serial.available() > 0) {
-      line = Serial.readStringUntil('\n');
-      line.trim(); // Loại bỏ khoảng trắng thừa
-      return line;
-    }
-    // Kiểm tra timeout để tránh bị treo nếu không có dữ liệu
-    if (millis() - startTime > timeoutDuration) {
-      Serial.println("Timeout! Khong nhan duoc du lieu.");
-      return ""; // Trả về chuỗi rỗng nếu timeout
-    }
-  }
-}
-
-bool cmd(pid* controller) { 
-  String command;
-
-  if (Serial.available() > 0) {
-    command = Serial.readStringUntil('\n');
-    command.trim();
-  }
-
-  if (command.equalsIgnoreCase("SETPID")) {
-    String kp_str, ki_str, kd_str, setpoint_str, sample_time_str;
-
-    Serial.println("Nhap Kp:");
-    kp_str = readSerialLine();
-
-    Serial.println("Nhap Ki:");
-    ki_str = readSerialLine();
-
-    Serial.println("Nhap Kd:");
-    kd_str = readSerialLine();
-
-    pidinit(controller, kp_str.toDouble(), ki_str.toDouble(), kd_str.toDouble(), setpoint, 0.01);
-    Serial.println("PID parameters updated!");
-
-    return true; 
-  } else {
-    return false;
-  }
 }

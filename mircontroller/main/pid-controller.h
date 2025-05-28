@@ -1,5 +1,5 @@
-#ifndef PID-CONTROLLER_H
-#define PID-CONTROLLER_H
+#ifndef PID_CONTROLLER_H
+#define PID_CONTROLLER_H
 struct pid {
   double Kp;
   double Ki;

@@ -1,6 +1,7 @@
 #ifndef SYSTEM_PERFORMANCE_H
 #define SYSTEM_PERFORMANCE_H
 #define CACHED 3
+
 struct sys_criteria {
   double overshoot;    //%
   double final_error; //steady state error

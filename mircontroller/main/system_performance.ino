@@ -1,5 +1,4 @@
 #include"system_performance.h"
-
 void SysPer_init(sys_per* system, sys_criteria* criteria, double setpoint, double Ess, double POT, double Tr, double Tss){
   criteria->final_error = Ess;
   criteria->overshoot = POT;
@@ -69,25 +68,3 @@ bool evaluate(sys_per* system, sys_criteria criteria, double val, double runtime
   }
 }
 
-void printCSV(float x, float y) {
-  Serial.print((float)x, 2);
-  Serial.print(",");
-  Serial.println((float)y, 2);
-}
-void print_performance(sys_per sys, sys_criteria criteria, double limit){
-  Serial.println("---------------------------------------RESULT:----------------------------------");
-  Serial.print("steady state error: "); Serial.println(sys.final_error);
-  Serial.print("steady state value: "); Serial.println(sys.final_val);
-  Serial.print("overshoot: "); Serial.println(sys.overshoot);
-  Serial.print("time rise: ");
-  if (sys.time_rise > 0.00001) { 
-    Serial.println(sys.time_rise);
-  }
-  else {Serial.println("nan"); }
-
-  Serial.print("time settle: "); 
-  if(sys.time_settle <= limit) {
-    Serial.println(sys.time_settle);
-  }
-  else {Serial.println("inf"); }
-}
